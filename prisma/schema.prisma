@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model data_kopi {
+  id         Int         @id @default(autoincrement())
+  jenis_kopi String      @db.VarChar(50)
+  nama_kopi  String      @db.VarChar(50)
+  harga      Decimal     @db.Decimal(10, 0)
+  deskripsi  String      @db.Text
+  gambar     String      @db.Text
+  transaksi  transaksi[]
+}
+
+model transaksi {
+  id          Int       @id @default(autoincrement())
+  id_kopi     Int
+  id_user     Int
+  jumlah_beli Int
+  harga       Decimal   @db.Decimal(10, 0)
+  total       Decimal   @db.Decimal(10, 0)
+  status      Int       @default(1)
+  created_at  DateTime  @default(now()) @db.Timestamp(0)
+  data_kopi   data_kopi @relation(fields: [id_kopi], references: [id], onUpdate: Restrict, map: "transaksi_ibfk_1")
+  users       users     @relation(fields: [id_user], references: [id], onUpdate: Restrict, map: "transaksi_ibfk_2")
+
+  @@index([id_kopi], map: "id_kopi")
+  @@index([id_user], map: "id_user")
+}
+
+model users {
+  id           Int         @id @default(autoincrement())
+  username     String      @unique(map: "username") @db.VarChar(50)
+  password     String      @db.VarChar(100)
+  no_telp      String      @db.VarChar(15)
+  nama_lengkap String      @db.VarChar(50)
+  role         Int         @default(1)
+  transaksi    transaksi[]
+}
